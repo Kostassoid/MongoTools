@@ -29,15 +29,14 @@ namespace Kostassoid.Mongo.Tester
 
             Console.WriteLine("Trying {0} connection to {1}", _isReplicaSet ? "replica set" : "direct", hostsAsString);
 
-            var connection = new MongoConnectionStringBuilder
+            var connection = new MongoClientSettings
                 {
                     ConnectionMode = _isReplicaSet ? ConnectionMode.ReplicaSet : ConnectionMode.Direct,
-                    SafeMode = SafeMode.True,
                     Servers = _hosts.Select(GetServerAddress),
-                    SlaveOk = _isReplicaSet
+                    ReadPreference = new ReadPreference(ReadPreferenceMode.PrimaryPreferred)
                 };
 
-            var server = MongoServer.Create(connection);
+            var server = new MongoClient(connection).GetServer();
             try
             {
                 server.Connect(TimeSpan.FromSeconds(10));
